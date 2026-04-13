@@ -1,0 +1,8 @@
+{
+  "name": "poketracker-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

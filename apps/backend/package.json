@@ -23,7 +23,9 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@poketracker/shared": "*",
     "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "express-rate-limit": "^8.3.2",
@@ -39,6 +41,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/bcryptjs": "^3.0.0",
+    "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/express-xss-sanitizer": "^2.0.0",
