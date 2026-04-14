@@ -19,5 +19,6 @@ router.post('/', createSaveFile);
 router.get('/:id', getSaveFileById);
 router.patch('/:id', updateSaveFile);
 router.delete('/:id', deleteSaveFile);
+router.patch('/:id/sync', syncSaveFile);
 
 export default router;
