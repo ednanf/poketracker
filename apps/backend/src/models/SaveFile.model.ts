@@ -1,26 +1,36 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Types, HydratedDocument, Schema, model } from 'mongoose';
 
-export interface ISaveFile extends Document {
-    userId: mongoose.Types.ObjectId;
+export interface ISaveFile {
+    _id: Types.ObjectId;
+    userId: Types.ObjectId;
     name: string;
     type: 'NATIONAL' | 'REGIONAL';
     gameVersion: string;
-    caughtIds: string[]; // Stores our composite IDs: "001-base"
+    caughtIds: string[];
     documentVersion: number;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
-const SaveFileSchema = new Schema<ISaveFile>(
+export interface ISaveFileDocument
+    extends ISaveFile, HydratedDocument<ISaveFile> {
+    // Utility method for future features (e.g., "Reset Save File" functionality)
+    clearDex(): void;
+}
+
+const SaveFileSchema = new Schema<ISaveFileDocument>(
     {
         userId: {
             type: Schema.Types.ObjectId,
+            ref: 'User',
             required: true,
-            index: true, // We will frequently query "Get all saves for User X"
+            index: true,
         },
         name: {
             type: String,
             required: true,
             trim: true,
-            maxlength: 50,
+            maxlength: [50, 'Save file name cannot exceed 50 characters'],
         },
         type: {
             type: String,
@@ -30,13 +40,15 @@ const SaveFileSchema = new Schema<ISaveFile>(
         gameVersion: {
             type: String,
             required: true,
+            trim: true,
         },
-        // The Sparse Array
         caughtIds: [
             {
                 type: String,
-                // Mongoose regex validation as a secondary defense layer behind Zod
-                match: [/^\d{3,4}-[a-z]+$/, 'Invalid composite ID format'],
+                match: [
+                    /^\d{3,4}-[a-z]+$/,
+                    'Invalid composite ID format (Expected format: "001-base")',
+                ],
             },
         ],
         documentVersion: {
@@ -44,12 +56,20 @@ const SaveFileSchema = new Schema<ISaveFile>(
             default: 1,
         },
     },
-    {
-        timestamps: true,
-    },
+    { timestamps: true },
 );
 
-export const SaveFileModel = mongoose.model<ISaveFile>(
-    'SaveFileModel',
-    SaveFileSchema,
-);
+// Compound Index: Optimizes queries like "Find my Violet save file"
+SaveFileSchema.index({ userId: 1, gameVersion: 1 });
+
+// Instance method to wipe the sparse array without deleting the metadata
+SaveFileSchema.methods.clearDex = function wipeSaveFile(): void {
+    this.caughtIds = [];
+    this.documentVersion += 1;
+};
+
+const SaveFile =
+    mongoose.models.SaveFile ||
+    model<ISaveFileDocument>('SaveFile', SaveFileSchema);
+
+export default SaveFile;
