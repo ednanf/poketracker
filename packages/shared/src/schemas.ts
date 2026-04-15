@@ -31,6 +31,26 @@ export const LoginSchema = z.object({
 });
 
 // ==========================================
+// ACCOUNT DOMAIN
+// ==========================================
+
+export const UpdateAccountSchema = z.object({
+    body: z.object({
+        email: z.string()
+                .email('Invalid email address format.')
+                .optional(),
+        password: z.string()
+                   .min(6, 'Password must be at least 6 characters.')
+                   .optional(),
+    })
+           .strict()
+        // Refine ensures that they actually sent at least one thing to update
+           .refine((data) => Object.keys(data).length > 0, {
+               message: 'At least one field (email or password) must be provided to update.',
+           }),
+});
+
+// ==========================================
 // SAVE FILE DOMAIN
 // ==========================================
 
@@ -42,6 +62,29 @@ export const CreateSaveFileSchema = z.object({
         type: z.enum(['NATIONAL', 'REGIONAL']),
         gameVersion: z.string()
                       .min(1, 'Game version is required.'),
+    })
+           .strict(),
+});
+
+// Validates routes that ONLY take an ID parameter (GET /:id, DELETE /:id)
+export const SaveFileIdSchema = z.object({
+    params: z.object({
+        id: z.string()
+             .length(24, 'Invalid Save File ID format.'),
+    }),
+});
+
+// Validates standard updates (e.g., changing the name of the save file)
+export const UpdateSaveFileSchema = z.object({
+    params: z.object({
+        id: z.string()
+             .length(24, 'Invalid Save File ID format.'),
+    }),
+    body: z.object({
+        name: z.string()
+               .min(1, 'Save file name is required.')
+               .max(50, 'Save file name cannot exceed 50 characters.')
+               .optional(), // .optional() because PATCH requests should allow partial updates
     })
            .strict(),
 });
@@ -77,6 +120,9 @@ export const SyncPayloadSchema = z.object({
 
 export type RegisterInput = z.infer<typeof RegisterSchema>['body'];
 export type LoginInput = z.infer<typeof LoginSchema>['body'];
+export type UpdateAccountInput = z.infer<typeof UpdateAccountSchema>['body'];
 export type CreateSaveFileInput = z.infer<typeof CreateSaveFileSchema>['body'];
+export type SaveFileIdInput = z.infer<typeof SaveFileIdSchema>['params'];
+export type UpdateSaveFileInput = z.infer<typeof UpdateSaveFileSchema>['body'];
 export type SyncPayloadInput = z.infer<typeof SyncPayloadSchema>['body'];
 export type SyncActionInput = z.infer<typeof SyncActionSchema>;

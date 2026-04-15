@@ -1,4 +1,11 @@
 import express from 'express';
+import { validate } from '../middleware/validate.middleware.js';
+import {
+    CreateSaveFileSchema,
+    SyncPayloadSchema,
+    SaveFileIdSchema,
+    UpdateSaveFileSchema,
+} from '@poketracker/shared';
 
 import {
     getAllSaveFiles,
@@ -11,14 +18,14 @@ import {
 
 const router = express.Router();
 
-// TODO: add sanitization and zod validation to the routes
+// TODO: add sanitization
 
 // `/api/v1/save-file`
 router.get('/', getAllSaveFiles);
-router.post('/', createSaveFile);
-router.get('/:id', getSaveFileById);
-router.patch('/:id', updateSaveFile);
-router.delete('/:id', deleteSaveFile);
-router.patch('/:id/sync', syncSaveFile);
+router.post('/', validate(CreateSaveFileSchema), createSaveFile);
+router.get('/:id', validate(SaveFileIdSchema), getSaveFileById);
+router.patch('/:id', validate(UpdateSaveFileSchema), updateSaveFile);
+router.delete('/:id', validate(SaveFileIdSchema), deleteSaveFile);
+router.patch('/:id/sync', validate(SyncPayloadSchema), syncSaveFile);
 
 export default router;

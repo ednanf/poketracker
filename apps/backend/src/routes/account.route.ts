@@ -1,4 +1,6 @@
 import express from 'express';
+import { validate } from '../middleware/validate.middleware.js';
+import { UpdateAccountSchema } from '@poketracker/shared';
 
 import {
     whoAmI,
@@ -8,11 +10,11 @@ import {
 
 const router = express.Router();
 
-// TODO: add sanitization and zod validation to the routes
+// TODO: add sanitization
 
 // `/api/v1/account`
 router.get('/', whoAmI);
-router.patch('/', patchUser);
+router.patch('/', validate(UpdateAccountSchema), patchUser);
 router.delete('/', deleteUser);
 
 export default router;
