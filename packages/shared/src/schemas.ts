@@ -11,7 +11,7 @@ export const RegisterSchema = z.object({
         username: z.string()
                    .min(3, 'Username must be at least 3 characters.')
                    .max(30, 'Username cannot exceed 30 characters.'),
-        // Note: Zod handles the validation, so Mongoose never sees a short password.
+        // Zod handles the validation, so Mongoose never sees a short password.
         password: z.string()
                    .min(6, 'Password must be at least 6 characters.'),
     })
@@ -22,7 +22,7 @@ export const LoginSchema = z.object({
     body: z.object({
         email: z.string()
                 .email('Invalid email address format.'),
-        // We do not enforce min length on login to prevent timing/guessing attacks.
+        // Do not enforce min length on login to prevent timing/guessing attacks.
         // Just ensure it's not empty.
         password: z.string()
                    .min(1, 'Password is required.'),
