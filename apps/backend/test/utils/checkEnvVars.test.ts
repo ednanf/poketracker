@@ -1,42 +1,42 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import checkEnvVars from "../../src/utils/checkEnvVars.js";
-import { EnvVarsMissingError } from "../../src/errors/index.js";
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import checkEnvVarsUtils from '../../src/utils/checkEnvVars.utils.js';
+import { EnvVarsMissingError } from '../../src/errors/index.js';
 
-describe("checkEnvVars utility", () => {
-  const originalEnv = process.env;
+describe('checkEnvVarsUtils utility', () => {
+    const originalEnv = process.env;
 
-  beforeEach(() => {
-    // Mock process.env to ensure tests don't leak into each other
-    vi.stubEnv("NODE_ENV", "test");
-  });
+    beforeEach(() => {
+        // Mock process.env to ensure tests don't leak into each other
+        vi.stubEnv('NODE_ENV', 'test');
+    });
 
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
+    afterEach(() => {
+        vi.unstubAllEnvs();
+    });
 
-  it("should not throw an error if all required variables are present", () => {
-    vi.stubEnv("PORT", "3000");
-    vi.stubEnv("MONGODB_URI", "mongodb://localhost:27017");
+    it('should not throw an error if all required variables are present', () => {
+        vi.stubEnv('PORT', '3000');
+        vi.stubEnv('MONGODB_URI', 'mongodb://localhost:27017');
 
-    // Expect this NOT to throw
-    expect(() => checkEnvVars(["PORT", "MONGODB_URI"])).not.toThrow();
-  });
+        // Expect this NOT to throw
+        expect(() => checkEnvVarsUtils(['PORT', 'MONGODB_URI'])).not.toThrow();
+    });
 
-  it("should throw EnvVarsMissingError if a variable is missing", () => {
-    vi.stubEnv("PORT", "3000");
+    it('should throw EnvVarsMissingError if a variable is missing', () => {
+        vi.stubEnv('PORT', '3000');
 
-    // MONGODB_URI is missing here
-    expect(() => checkEnvVars(["PORT", "MONGODB_URI"])).toThrow(
-      EnvVarsMissingError,
-    );
-  });
+        // MONGODB_URI is missing here
+        expect(() => checkEnvVarsUtils(['PORT', 'MONGODB_URI'])).toThrow(
+            EnvVarsMissingError,
+        );
+    });
 
-  it("should include the names of missing variables in the error message", () => {
-    // None of these are set
-    const missing = ["VAR_A", "VAR_B"];
+    it('should include the names of missing variables in the error message', () => {
+        // None of these are set
+        const missing = ['VAR_A', 'VAR_B'];
 
-    expect(() => checkEnvVars(missing)).toThrow(
-      /missing environment variables: VAR_A, VAR_B/,
-    );
-  });
+        expect(() => checkEnvVarsUtils(missing)).toThrow(
+            /missing environment variables: VAR_A, VAR_B/,
+        );
+    });
 });
