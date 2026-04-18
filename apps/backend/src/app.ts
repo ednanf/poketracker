@@ -1,9 +1,9 @@
 import express from 'express';
 import morgan from 'morgan';
 
-import authRoutes from './routes/auth.route.js';
-import accountRoutes from './routes/account.route.js';
-import saveFileRoutes from './routes/saveFiles.route.js';
+import authRouter from './routes/auth.route.js';
+import accountRouter from './routes/account.route.js';
+import saveFileRouter from './routes/saveFiles.route.js';
 import errorHandlerMiddleware from './middleware/errorHandler.middleware.js';
 import notFoundMiddleware from './middleware/notFound.middleware.js';
 
@@ -14,9 +14,9 @@ app.use(express.json());
 app.use(morgan('tiny'));
 
 // Routes
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/account', accountRoutes);
-app.use('/api/v1/save-file', saveFileRoutes);
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/account', accountRouter);
+app.use('/api/v1/save-file', saveFileRouter);
 
 // Errors
 app.use(errorHandlerMiddleware);
