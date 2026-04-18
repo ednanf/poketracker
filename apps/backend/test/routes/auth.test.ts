@@ -25,7 +25,7 @@ describe('Auth Routes', () => {
     });
 
     describe('POST /register', () => {
-        it('returns 201 and calls register controller with valid data', async () => {
+        it('returns `201` and calls register controller with valid data', async () => {
             const response = await request(app)
                 .post('/api/v1/auth/register')
                 .send({
@@ -38,7 +38,7 @@ describe('Auth Routes', () => {
             expect(authController.registerUser).toHaveBeenCalled();
         });
 
-        it('returns 400 when registering with an invalid email', async () => {
+        it('returns `400` when registering with an invalid email', async () => {
             const response = await request(app)
                 .post('/api/v1/auth/register')
                 .send({
@@ -51,7 +51,7 @@ describe('Auth Routes', () => {
             expect(authController.registerUser).not.toHaveBeenCalled();
         });
 
-        it('returns 400 when registering with a short password', async () => {
+        it('returns `400` when registering with a short password', async () => {
             const response = await request(app)
                 .post('/api/v1/auth/register')
                 .send({
@@ -64,7 +64,7 @@ describe('Auth Routes', () => {
             expect(authController.registerUser).not.toHaveBeenCalled();
         });
 
-        it('returns 400 when registering with unexpected fields', async () => {
+        it('returns `400` when registering with unexpected fields', async () => {
             const response = await request(app)
                 .post('/api/v1/auth/register')
                 .send({
@@ -99,7 +99,7 @@ describe('Auth Routes', () => {
     });
 
     describe('POST /login', () => {
-        it('returns 200 and calls login controller with valid credentials', async () => {
+        it('returns `200` and calls login controller with valid credentials', async () => {
             const response = await request(app)
                 .post('/api/v1/auth/login')
                 .send({
@@ -111,7 +111,7 @@ describe('Auth Routes', () => {
             expect(authController.loginUser).toHaveBeenCalled();
         });
 
-        it('returns 400 when logging in with an invalid email address', async () => {
+        it('returns `400` when logging in with an invalid email address', async () => {
             const response = await request(app)
                 .post('/api/v1/auth/login')
                 .send({
@@ -123,7 +123,7 @@ describe('Auth Routes', () => {
             expect(authController.loginUser).not.toHaveBeenCalled();
         });
 
-        it('returns 400 when logging in with a short password', async () => {
+        it('returns `400` when logging in with a short password', async () => {
             const response = await request(app)
                 .post('/api/v1/auth/login')
                 .send({
@@ -136,7 +136,7 @@ describe('Auth Routes', () => {
             expect(authController.loginUser).not.toHaveBeenCalled();
         });
 
-        it('returns 400 when logging in with unexpected fields', async () => {
+        it('returns `400` when logging in with unexpected fields', async () => {
             const response = await request(app)
                 .post('/api/v1/auth/login')
                 .send({
@@ -151,7 +151,7 @@ describe('Auth Routes', () => {
     });
 
     describe('Token Management', () => {
-        it('returns 200 and calls `refresh controller`', async () => {
+        it('returns `200` and calls `refresh controller`', async () => {
             const response = await request(app).post(
                 '/api/v1/auth/refresh-token',
             );
@@ -159,7 +159,7 @@ describe('Auth Routes', () => {
             expect(authController.refreshToken).toHaveBeenCalled();
         });
 
-        it('returns 200 and calls `logout controller`', async () => {
+        it('returns `200` and calls `logout controller`', async () => {
             const response = await request(app).post('/api/v1/auth/logout');
             expect(response.status).toBe(200);
             expect(authController.logoutUser).toHaveBeenCalled();

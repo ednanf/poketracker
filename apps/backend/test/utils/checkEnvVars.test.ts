@@ -22,7 +22,7 @@ describe('checkEnvVarsUtil utility', () => {
         expect(() => checkEnvVarsUtil(['PORT', 'MONGODB_URI'])).not.toThrow();
     });
 
-    it('should throw EnvVarsMissingError if a variable is missing', () => {
+    it('should throw `EnvVarsMissingError` if a variable is missing', () => {
         vi.stubEnv('PORT', '3000');
 
         // MONGODB_URI is missing here
