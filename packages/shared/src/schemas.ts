@@ -25,7 +25,7 @@ export const LoginSchema = z.object({
         // Do not enforce min length on login to prevent timing/guessing attacks.
         // Just ensure it's not empty.
         password: z.string()
-                   .min(1, 'Password is required.'),
+                   .min(1, 'Password is required.'), // A single character to prevent "field-guessing"
     })
            .strict(),
 });
