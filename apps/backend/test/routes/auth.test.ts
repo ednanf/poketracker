@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
+
 import { createTestApp } from '../helpers/createTestApp.js';
 import authRouter from '../../src/routes/auth.route.js';
 import * as authController from '../../src/controllers/auth.controller.js';
