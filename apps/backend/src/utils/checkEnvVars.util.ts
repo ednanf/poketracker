@@ -1,6 +1,6 @@
 import { EnvVarsMissingError } from '../errors/index.js';
 
-const checkEnvVarsUtils = (requiredVars: string[]): void => {
+const checkEnvVarsUtil = (requiredVars: string[]): void => {
     const missingVars = requiredVars.filter((key) => !process.env[key]);
     if (missingVars.length) {
         throw new EnvVarsMissingError(
@@ -9,4 +9,4 @@ const checkEnvVarsUtils = (requiredVars: string[]): void => {
     }
 };
 
-export default checkEnvVarsUtils;
+export default checkEnvVarsUtil;

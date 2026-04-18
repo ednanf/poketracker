@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import checkEnvVarsUtils from '../../src/utils/checkEnvVars.utils.js';
+import checkEnvVarsUtil from '../../src/utils/checkEnvVars.util.js';
 import { EnvVarsMissingError } from '../../src/errors/index.js';
 
-describe('checkEnvVarsUtils utility', () => {
+describe('checkEnvVarsUtil utility', () => {
     const originalEnv = process.env;
 
     beforeEach(() => {
@@ -19,23 +19,23 @@ describe('checkEnvVarsUtils utility', () => {
         vi.stubEnv('MONGODB_URI', 'mongodb://localhost:27017');
 
         // Expect this NOT to throw
-        expect(() => checkEnvVarsUtils(['PORT', 'MONGODB_URI'])).not.toThrow();
+        expect(() => checkEnvVarsUtil(['PORT', 'MONGODB_URI'])).not.toThrow();
     });
 
     it('should throw EnvVarsMissingError if a variable is missing', () => {
         vi.stubEnv('PORT', '3000');
 
         // MONGODB_URI is missing here
-        expect(() => checkEnvVarsUtils(['PORT', 'MONGODB_URI'])).toThrow(
+        expect(() => checkEnvVarsUtil(['PORT', 'MONGODB_URI'])).toThrow(
             EnvVarsMissingError,
         );
     });
 
-    it('should include the names of missing variables in the error message', () => {
+    it('should include the names of missing variables in error message', () => {
         // None of these are set
         const missing = ['VAR_A', 'VAR_B'];
 
-        expect(() => checkEnvVarsUtils(missing)).toThrow(
+        expect(() => checkEnvVarsUtil(missing)).toThrow(
             /missing environment variables: VAR_A, VAR_B/,
         );
     });

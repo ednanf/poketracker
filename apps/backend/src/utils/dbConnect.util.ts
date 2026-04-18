@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 import { DatabaseError } from '../errors/index.js';
 
-const dbConnectUtils = async (uri: string | undefined): Promise<void> => {
+const dbConnectUtil = async (uri: string | undefined): Promise<void> => {
     if (!uri) {
         throw new DatabaseError(
             '**[error]** MONGODB_URI is missing. Please, set it in your environment variable.',
@@ -18,4 +18,4 @@ const dbConnectUtils = async (uri: string | undefined): Promise<void> => {
     }
 };
 
-export default dbConnectUtils;
+export default dbConnectUtil;

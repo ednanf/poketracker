@@ -151,7 +151,7 @@ describe('Auth Routes', () => {
     });
 
     describe('Token Management', () => {
-        it('POST /refresh-token - returns 200 and calls refresh controller', async () => {
+        it('returns 200 and calls `refresh controller`', async () => {
             const response = await request(app).post(
                 '/api/v1/auth/refresh-token',
             );
@@ -159,7 +159,7 @@ describe('Auth Routes', () => {
             expect(authController.refreshToken).toHaveBeenCalled();
         });
 
-        it('POST /logout - returns 200 and calls logout controller', async () => {
+        it('returns 200 and calls `logout controller`', async () => {
             const response = await request(app).post('/api/v1/auth/logout');
             expect(response.status).toBe(200);
             expect(authController.logoutUser).toHaveBeenCalled();
@@ -184,3 +184,5 @@ describe('Auth Routes', () => {
         });
     });
 });
+
+// TODO: create tests for the account and saveFile routes
