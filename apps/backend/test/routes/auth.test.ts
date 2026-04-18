@@ -25,7 +25,7 @@ describe('Auth Routes', () => {
     // HAPPY PATH TESTS
     // ==========================================
 
-    it('POST /register hits register controller', async () => {
+    it('returns 201 and calls register controller', async () => {
         const response = await request(app).post('/api/v1/auth/register').send({
             email: 'ash.ketchum@pallet.com',
             username: 'ash_ketchum',
@@ -36,7 +36,7 @@ describe('Auth Routes', () => {
         expect(authController.registerUser).toHaveBeenCalled();
     });
 
-    it('POST /login hits login controller', async () => {
+    it('returns 200 and calls login controller', async () => {
         const response = await request(app).post('/api/v1/auth/login').send({
             email: 'ash@pallet.com',
             password: 'any-password',
@@ -46,23 +46,68 @@ describe('Auth Routes', () => {
         expect(authController.loginUser).toHaveBeenCalled();
     });
 
-    it('POST /refresh-token hits refresh controller', async () => {
+    it('returns 200 and calls refresh token controller', async () => {
         const response = await request(app).post('/api/v1/auth/refresh-token');
         expect(response.status).toBe(200);
         expect(authController.refreshToken).toHaveBeenCalled();
     });
 
-    it('POST /logout hits logout controller', async () => {
+    it('returns 200 and calls logout controller', async () => {
         const response = await request(app).post('/api/v1/auth/logout');
         expect(response.status).toBe(200);
         expect(authController.logoutUser).toHaveBeenCalled();
+    });
+
+    it('includes security headers from helmet in the response', async () => {
+        const response = await request(app).post('/api/v1/auth/login');
+
+        // Prevents browsers from trying to guess the MIME type
+        expect(response.headers).toHaveProperty(
+            'x-content-type-options',
+            'nosniff',
+        );
+
+        // Prevents the website from being put in an iframe (Clickjacking protection)
+        expect(response.headers).toHaveProperty(
+            'x-frame-options',
+            'SAMEORIGIN',
+        );
+
+        // Tells the browser which sources are trusted (CSP)
+        expect(response.headers).toHaveProperty('content-security-policy');
+
+        // Hides the "X-Powered-By: Express" header so attackers don't know your stack
+        expect(response.headers).not.toHaveProperty('x-powered-by');
+    });
+
+    it('sanitizes XSS attempts in the request body', async () => {
+        // Add all required fields so Zod lets the request through
+        const maliciousData = {
+            email: 'valid@email.com',
+            password: 'password123',
+            username: "<script>alert('xss')</script>Pikachu",
+        };
+
+        const response = await request(app)
+            .post('/api/v1/auth/register')
+            .send(maliciousData);
+
+        // Check status first to make sure we didn't get a 400
+        expect(response.status).toBe(201);
+
+        // Now the controller HAS been called, the data can be checked
+        const receivedData = vi.mocked(authController.registerUser).mock
+            .calls[0][0].body;
+
+        expect(receivedData.username).not.toContain('<script>');
     });
 
     // ==========================================
     // UNHAPPY PATH TESTS
     // ==========================================
 
-    it('POST /register - FAIL (400) with invalid email', async () => {
+    // REGISTER
+    it('returns 400 when registering with invalid email', async () => {
         const response = await request(app).post('/api/v1/auth/register').send({
             email: 'not-an-email',
             username: 'ash',
@@ -71,11 +116,22 @@ describe('Auth Routes', () => {
 
         expect(response.status).toBe(400);
 
-        // The controller should NEVER be called
         expect(authController.registerUser).not.toHaveBeenCalled();
     });
 
-    it('POST /register - FAIL (400) due to .strict() (extra fields)', async () => {
+    it('returns 400 when registering with a short password', async () => {
+        const response = await request(app).post('/api/v1/auth/register').send({
+            email: 'ash@pallet.com',
+            username: 'ash',
+            password: '123',
+        });
+
+        expect(response.status).toBe(400);
+
+        expect(authController.registerUser).not.toHaveBeenCalled();
+    });
+
+    it('returns 400 when registering with invalid fields', async () => {
         const response = await request(app).post('/api/v1/auth/register').send({
             email: 'ash@pallet.com',
             username: 'ash_ketchum',
@@ -84,5 +140,45 @@ describe('Auth Routes', () => {
         });
 
         expect(response.status).toBe(400);
+
+        expect(authController.registerUser).not.toHaveBeenCalled();
+    });
+
+    // LOGIN
+    it('returns 400 when logging in with invalid email', async () => {
+        const response = await request(app).post('/api/v1/auth/login').send({
+            email: 'not-an-email',
+            username: 'ash',
+            password: 'password123',
+        });
+
+        expect(response.status).toBe(400);
+
+        expect(authController.loginUser).not.toHaveBeenCalled();
+    });
+
+    it('returns 400 when logging in with a short password', async () => {
+        const response = await request(app).post('/api/v1/auth/login').send({
+            email: 'ash@pallet.com',
+            username: 'ash',
+            password: '123',
+        });
+
+        expect(response.status).toBe(400);
+
+        expect(authController.loginUser).not.toHaveBeenCalled();
+    });
+
+    it('returns 400 when logging in with invalid fields', async () => {
+        const response = await request(app).post('/api/v1/auth/login').send({
+            email: 'ash@pallet.com',
+            username: 'ash',
+            password: '123',
+            admin: true, // This will trigger a strict() violation
+        });
+
+        expect(response.status).toBe(400);
+
+        expect(authController.loginUser).not.toHaveBeenCalled();
     });
 });
