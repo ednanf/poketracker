@@ -6,8 +6,8 @@
       "module": "NodeNext",
       // resolves ESM + .ts extensions properly
       "moduleResolution": "nodenext",
-      "rootDir": "./src",
-      "outDir": "./dist",
+      "rootDir": "./",
+      "outDir": "dist",
       "strict": true,
       "noImplicitAny": true,
       "noUnusedLocals": false,
@@ -23,6 +23,6 @@
       "ignoreDeprecations": "5.0",
       "typeRoots": ["./node_modules/@types"]
   },
-  "include": ["src/**/*", "test/**/*", "scripts/**/*"],
+  "include": ["src/**/*", "test/**/*.ts", "scripts/**/*"],
   "exclude": ["node_modules", "dist"]
 }
