@@ -4,6 +4,8 @@ import morgan from 'morgan';
 import authRoutes from './routes/auth.route.js';
 import accountRoutes from './routes/account.route.js';
 import saveFileRoutes from './routes/saveFiles.route.js';
+import errorHandlerMiddleware from './middleware/errorHandler.middleware.js';
+import notFoundMiddleware from './middleware/notFound.middleware.js';
 
 const app = express();
 
@@ -17,6 +19,7 @@ app.use('/api/v1/account', accountRoutes);
 app.use('/api/v1/save-file', saveFileRoutes);
 
 // Errors
-// TODO: add error fallback routes
+app.use(errorHandlerMiddleware);
+app.use(notFoundMiddleware);
 
 export default app;
