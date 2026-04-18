@@ -6,11 +6,15 @@ import accountRouter from './routes/account.route.js';
 import saveFileRouter from './routes/saveFiles.route.js';
 import errorHandlerMiddleware from './middleware/errorHandler.middleware.js';
 import notFoundMiddleware from './middleware/notFound.middleware.js';
+import { xss } from 'express-xss-sanitizer';
+import helmet from 'helmet';
 
 const app = express();
 
 // Middleware
 app.use(express.json());
+app.use(helmet());
+app.use(xss());
 app.use(morgan('tiny'));
 
 // Routes

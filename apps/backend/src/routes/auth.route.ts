@@ -1,4 +1,5 @@
 import express from 'express';
+
 import { validate } from '../middleware/validate.middleware.js';
 import { RegisterSchema, LoginSchema } from '@poketracker/shared';
 
@@ -10,8 +11,6 @@ import {
 } from '../controllers/auth.controller.js';
 
 const router = express.Router();
-
-// TODO: add sanitization
 
 // `/api/v1/auth`
 router.post('/register', validate(RegisterSchema), registerUser);

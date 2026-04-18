@@ -18,8 +18,6 @@ import {
 
 const router = express.Router();
 
-// TODO: add sanitization
-
 // `/api/v1/save-file`
 router.get('/', getAllSaveFiles);
 router.post('/', validate(CreateSaveFileSchema), createSaveFile);

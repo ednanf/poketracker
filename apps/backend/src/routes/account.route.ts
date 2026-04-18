@@ -10,8 +10,6 @@ import {
 
 const router = express.Router();
 
-// TODO: add sanitization
-
 // `/api/v1/account`
 router.get('/', whoAmI);
 router.patch('/', validate(UpdateAccountSchema), patchUser);
