@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
+import { StatusCodes } from 'http-status-codes';
 
 import { createTestApp } from '../helpers/createTestApp.js';
 import authRouter from '../../src/routes/auth.route.js';
@@ -8,13 +9,17 @@ import * as authController from '../../src/controllers/auth.controller.js';
 // Mock the controller module
 vi.mock('../../src/controllers/auth.controller.js', () => ({
     registerUser: vi.fn((_req, res) =>
-        res.status(201).json({ message: 'hit' }),
+        res.status(StatusCodes.CREATED).json({ message: 'hit' }),
     ),
-    loginUser: vi.fn((_req, res) => res.status(200).json({ message: 'hit' })),
+    loginUser: vi.fn((_req, res) =>
+        res.status(StatusCodes.OK).json({ message: 'hit' }),
+    ),
     refreshToken: vi.fn((_req, res) =>
-        res.status(200).json({ message: 'hit' }),
+        res.status(StatusCodes.OK).json({ message: 'hit' }),
     ),
-    logoutUser: vi.fn((_req, res) => res.status(200).json({ message: 'hit' })),
+    logoutUser: vi.fn((_req, res) =>
+        res.status(StatusCodes.OK).json({ message: 'hit' }),
+    ),
 }));
 
 describe('Auth Routes', () => {
@@ -34,7 +39,7 @@ describe('Auth Routes', () => {
                     password: 'password123',
                 });
 
-            expect(response.status).toBe(201);
+            expect(response.status).toBe(StatusCodes.CREATED);
             expect(authController.registerUser).toHaveBeenCalled();
         });
 
@@ -47,7 +52,7 @@ describe('Auth Routes', () => {
                     password: 'password123',
                 });
 
-            expect(response.status).toBe(400);
+            expect(response.status).toBe(StatusCodes.BAD_REQUEST);
             expect(authController.registerUser).not.toHaveBeenCalled();
         });
 
@@ -60,7 +65,7 @@ describe('Auth Routes', () => {
                     password: '123',
                 });
 
-            expect(response.status).toBe(400);
+            expect(response.status).toBe(StatusCodes.BAD_REQUEST);
             expect(authController.registerUser).not.toHaveBeenCalled();
         });
 
@@ -74,7 +79,7 @@ describe('Auth Routes', () => {
                     admin: true, // Will trigger strict() validation
                 });
 
-            expect(response.status).toBe(400);
+            expect(response.status).toBe(StatusCodes.BAD_REQUEST);
         });
 
         it('sanitizes XSS attempts in the username while registering', async () => {
@@ -88,7 +93,7 @@ describe('Auth Routes', () => {
                 .post('/api/v1/auth/register')
                 .send(maliciousData);
 
-            expect(response.status).toBe(201);
+            expect(response.status).toBe(StatusCodes.CREATED);
 
             // Use vi.mocked for type safety instead of 'any'
             const mockedRegister = vi.mocked(authController.registerUser);
@@ -107,7 +112,7 @@ describe('Auth Routes', () => {
                     password: 'any-password',
                 });
 
-            expect(response.status).toBe(200);
+            expect(response.status).toBe(StatusCodes.OK);
             expect(authController.loginUser).toHaveBeenCalled();
         });
 
@@ -119,7 +124,7 @@ describe('Auth Routes', () => {
                     password: '123456',
                 });
 
-            expect(response.status).toBe(400);
+            expect(response.status).toBe(StatusCodes.BAD_REQUEST);
             expect(authController.loginUser).not.toHaveBeenCalled();
         });
 
@@ -131,7 +136,7 @@ describe('Auth Routes', () => {
                     password: '',
                 });
 
-            expect(response.status).toBe(400);
+            expect(response.status).toBe(StatusCodes.BAD_REQUEST);
 
             expect(authController.loginUser).not.toHaveBeenCalled();
         });
@@ -146,7 +151,7 @@ describe('Auth Routes', () => {
                     admin: true, // Will trigger strict() validation
                 });
 
-            expect(response.status).toBe(400);
+            expect(response.status).toBe(StatusCodes.BAD_REQUEST);
         });
     });
 
@@ -155,13 +160,13 @@ describe('Auth Routes', () => {
             const response = await request(app).post(
                 '/api/v1/auth/refresh-token',
             );
-            expect(response.status).toBe(200);
+            expect(response.status).toBe(StatusCodes.OK);
             expect(authController.refreshToken).toHaveBeenCalled();
         });
 
         it('returns `200` and calls `logout controller`', async () => {
             const response = await request(app).post('/api/v1/auth/logout');
-            expect(response.status).toBe(200);
+            expect(response.status).toBe(StatusCodes.OK);
             expect(authController.logoutUser).toHaveBeenCalled();
         });
     });
@@ -184,5 +189,3 @@ describe('Auth Routes', () => {
         });
     });
 });
-
-// TODO: create tests for the account and saveFile routes

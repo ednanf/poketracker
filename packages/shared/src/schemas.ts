@@ -39,14 +39,21 @@ export const UpdateAccountSchema = z.object({
         email: z.string()
                 .email('Invalid email address format.')
                 .optional(),
+
+        username: z.string()
+                   .min(3, 'Username must be at least 3 characters.')
+                   .max(30, 'Username cannot exceed 30 characters.')
+                   .optional(),
+
         password: z.string()
                    .min(6, 'Password must be at least 6 characters.')
                    .optional(),
     })
-           .strict()
-        // Refine ensures that they actually sent at least one thing to update
+           .strict() // Rejects extra garbage like { admin: true }
+
+        // Refine ensures they didn't just send an empty body {}
            .refine((data) => Object.keys(data).length > 0, {
-               message: 'At least one field (email or password) must be provided to update.',
+               message: 'At least one field (email, username, or password) must be provided to update.',
            }),
 });
 
