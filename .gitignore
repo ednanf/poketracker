@@ -46,3 +46,4 @@ public/uploads/
 
 # VS Code recommended extensions (keep)
 !.vscode/extensions.json
+/apps/backend/.env
