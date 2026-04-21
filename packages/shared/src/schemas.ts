@@ -25,7 +25,7 @@ export const LoginSchema = z.object({
         // Do not enforce min length on login to prevent timing/guessing attacks.
         // Just ensure it's not empty.
         password: z.string()
-                   .min(1, 'Password is required.'), // A single character to prevent "field-guessing"
+                   .min(1, 'Password is required.'),
     })
            .strict(),
 });
@@ -49,7 +49,7 @@ export const UpdateAccountSchema = z.object({
                    .min(6, 'Password must be at least 6 characters.')
                    .optional(),
     })
-           .strict() // Rejects extra garbage like { admin: true }
+           .strict() // Rejects garbage like { admin: true }
 
         // Refine ensures they didn't just send an empty body {}
            .refine((data) => Object.keys(data).length > 0, {
