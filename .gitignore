@@ -31,10 +31,10 @@ dist/
 dist-ssr/
 
 # Environment files
-backend/.env
-frontend/.env
-.env.*
-*.local
+**/.env
+**/.env.*
+**/.env.local
+!**/.env.example
 
 # Temp files
 tmp/
