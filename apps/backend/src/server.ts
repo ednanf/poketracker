@@ -1,26 +1,38 @@
-import http from 'http';
+import { env } from './config/env.js';
 import app from './app.js';
-import checkEnvVarsUtil from './utils/checkEnvVars.util.js';
 import dbConnectUtil from './utils/dbConnect.util.js';
+import http from 'http';
 
-// Import environment variables using node built-in functionality
-const { NODE_ENV, PORT = 3000, MONGODB_LOCAL_URI, MONGODB_URI } = process.env;
+/**
+ * Create the HTTP server instance.
+ * Note: No need for dotenv here since you use the --env-file flag.
+ */
+const server = http.createServer(app);
 
-// Check if all required variables are present via utility function
-checkEnvVarsUtil(['NODE_ENV', 'PORT', 'MONGODB_LOCAL_URI', 'MONGODB_URI']);
-
-// Define the DB URI according to the current environment (production or development)
-const DB_URI = NODE_ENV === 'production' ? MONGODB_URI : MONGODB_LOCAL_URI;
-
-// Create a server using the constructed app - separates the express application and the server itself
-const server: http.Server = http.createServer(app);
-
-// Define a function to start the server and handle possible errors
-const serverStart = async () => {
+/**
+ * Main entry point to bootstrap the backend.
+ */
+const serverStart = async (): Promise<void> => {
     try {
-        await dbConnectUtil(DB_URI);
-        server.listen(PORT, () => {
-            console.log(`**[system]** server is listening on port ${PORT}...`);
+        // Determine which URI to use; defaulting to local for dev
+        const connectionString =
+            env.MONGODB_URI !== 'EMPTY'
+                ? env.MONGODB_URI
+                : env.MONGODB_LOCAL_URI;
+
+        // Connect to MongoDB
+        await dbConnectUtil(connectionString);
+
+        // Start the server
+        server.listen(env.PORT, () => {
+            console.log(
+                `**[system]** server is listening on port ${env.PORT}...`,
+            );
+            console.log(`**[system]** mode: ${env.NODE_ENV}`);
+
+            if (env.NODE_VERSION) {
+                console.log(`**[system]** node version: ${env.NODE_VERSION}`);
+            }
         });
     } catch (e) {
         console.error(
@@ -31,11 +43,5 @@ const serverStart = async () => {
     }
 };
 
-// Start the server properly, handling any eventual error that for some reason was not caught
-serverStart().catch((e) => {
-    console.error(
-        '**[error]** an error occurred when starting the server, exiting with code 1',
-        e,
-    );
-    process.exit(1);
-});
+// Start the sequence
+await serverStart();
