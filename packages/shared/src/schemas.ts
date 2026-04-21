@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-// ==========================================
-// AUTHENTICATION DOMAIN
-// ==========================================
+/*
+ // AUTHENTICATION DOMAIN
+ */
 
 export const RegisterSchema = z.object({
     body: z.object({
@@ -30,9 +30,9 @@ export const LoginSchema = z.object({
            .strict(),
 });
 
-// ==========================================
-// ACCOUNT DOMAIN
-// ==========================================
+/*
+ // ACCOUNT DOMAIN
+ */
 
 export const UpdateAccountSchema = z.object({
     body: z.object({
@@ -57,9 +57,9 @@ export const UpdateAccountSchema = z.object({
            }),
 });
 
-// ==========================================
-// SAVE FILE DOMAIN
-// ==========================================
+/*
+ // SAVE FILE DOMAIN
+ */
 
 export const CreateSaveFileSchema = z.object({
     body: z.object({
@@ -120,10 +120,11 @@ export const SyncPayloadSchema = z.object({
            .strict(),
 });
 
-// ==========================================
-// EXPORTED TYPES
-// ==========================================
-// Infer TypeScript interfaces directly from the schemas.
+/*
+ // EXPORTED TYPES
+ //
+ // Infer TypeScript interfaces directly from the schemas.
+ */
 
 export type RegisterInput = z.infer<typeof RegisterSchema>['body'];
 export type LoginInput = z.infer<typeof LoginSchema>['body'];
