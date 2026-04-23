@@ -4,5 +4,18 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "scripts": {
+    "prepare": "husky",
+    "check": "yarn workspaces run check"
+  },
+  "lint-staged": {
+    "apps/backend/src/**/*.{ts,tsx}": [
+      "yarn workspace backend lint:fix",
+      "yarn workspace backend vitest related --run"
+    ],
+    "packages/shared/src/**/*.{ts,tsx}": [
+      "yarn workspace @poketracker/shared lint"
+    ]
+  }
 }

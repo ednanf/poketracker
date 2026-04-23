@@ -1,4 +1,3 @@
-// apps/backend/src/utils/jwt.ts
 import jwt from 'jsonwebtoken';
 import { Response } from 'express';
 import { Types } from 'mongoose';
