@@ -55,7 +55,7 @@ UserSchema.pre('save', async function hashPasswordBeforeSave() {
 UserSchema.methods.comparePassword = async function compareUserPassword(
     candidatePassword: string,
 ): Promise<boolean> {
-    // Note: Because we use 'select: false', this.passwordHash will be undefined
+    // Note: Because 'select: false', this.passwordHash will be undefined
     // unless we explicitly '.select("+passwordHash")' in the controller query.
     if (!this.passwordHash)
         throw new Error('Password hash not selected in query');

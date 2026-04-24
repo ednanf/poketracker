@@ -1,10 +1,14 @@
-// Generic API Response Wrapper
+/*
+ * Generic API response
+ * */
 export interface ApiResponse<T = never> {
     status: 'success' | 'error';
     data: T;
 }
 
-// Standard Error Payload
+/*
+ * Error types
+ * */
 export interface ApiError {
     message: string;
     errorId?: string; // Optional, used for 500 fallback logging
@@ -16,12 +20,15 @@ export interface MongoDatabaseError {
     message: string;
 }
 
-// You can add specific Success response shapes here as we build the controllers.
-// For example, what the login route returns:
+/*
+ * Auth types
+ * */
 export interface AuthSuccessPayload {
     message: string;
+    accessToken: string;
     user: {
         id: string;
         username: string;
+        email: string;
     };
 }

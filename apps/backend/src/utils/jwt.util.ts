@@ -2,10 +2,6 @@ import jwt from 'jsonwebtoken';
 import { Response } from 'express';
 import { Types } from 'mongoose';
 
-// Ensure these are in your .env file
-// JWT_ACCESS_SECRET=your_super_secret_access_key
-// JWT_REFRESH_SECRET=your_super_secret_refresh_key
-
 export const generateAccessToken = (
     userId: Types.ObjectId | string,
 ): string => {
