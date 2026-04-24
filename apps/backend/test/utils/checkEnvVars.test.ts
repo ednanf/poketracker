@@ -2,9 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import checkEnvVarsUtil from '../../src/utils/checkEnvVars.util.js';
 import { EnvVarsMissingError } from '../../src/errors/index.js';
 
-describe('checkEnvVarsUtil utility', () => {
-    const originalEnv = process.env;
-
+describe('`checkEnvVarsUtil` utility', () => {
     beforeEach(() => {
         // Mock process.env to ensure tests don't leak into each other
         vi.stubEnv('NODE_ENV', 'test');
