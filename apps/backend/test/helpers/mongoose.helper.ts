@@ -1,5 +1,5 @@
 /**
- * Fraudulence Helper (ESLint Safe Edition)
+ * Fraudulence Helper
  * Convinces TypeScript that a mock object is a Mongoose Document.
  */
 export const mockMongooseDoc = <T extends (...args: unknown[]) => unknown>(
