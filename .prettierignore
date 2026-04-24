@@ -1,0 +1,14 @@
+# Dependency folders
+node_modules/
+
+# Build outputs
+.tsbuildinfo
+
+# IDE and OS files
+.idea/
+.vscode/
+.DS_Store
+
+# Lockfiles (Prettier shouldn't touch these)
+yarn.lock
+package-lock.json

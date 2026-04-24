@@ -1,21 +1,39 @@
 {
-  "name": "poketracker-monorepo",
-  "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "scripts": {
-    "prepare": "husky",
-    "check": "yarn workspaces run check"
-  },
-  "lint-staged": {
-    "apps/backend/src/**/*.{ts,tsx}": [
-      "yarn workspace backend lint:fix",
-      "yarn workspace backend vitest related --run"
+    "name": "poketracker-monorepo",
+    "private": true,
+    "workspaces": [
+        "apps/*",
+        "packages/*"
     ],
-    "packages/shared/src/**/*.{ts,tsx}": [
-      "yarn workspace @poketracker/shared lint"
-    ]
-  }
+    "scripts": {
+        "prepare": "husky",
+        "typecheck": "yarn workspaces run check",
+        "format:check": "prettier --check .",
+        "format:fix": "prettier --write ."
+    },
+    "lint-staged": {
+        "apps/**/*.{ts,tsx,js,json,css}": [
+            "prettier --write"
+        ],
+        "packages/**/*.{ts,tsx,js,json,css}": [
+            "prettier --write"
+        ],
+        "apps/backend/src/**/*.{ts,tsx}": [
+            "yarn workspace backend lint:fix",
+            "yarn workspace backend vitest related --run"
+        ],
+        "apps/frontend/src/**/*.{ts,tsx}": [
+            "yarn workspace frontend lint",
+            "yarn workspace frontend vitest related --run"
+        ]
+    },
+    "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "eslint": "^10.2.1",
+        "husky": "^9.1.7",
+        "lint-staged": "^16.4.0",
+        "prettier": "^3.8.3",
+        "typescript": "^6.0.3",
+        "typescript-eslint": "^8.59.0"
+    }
 }
