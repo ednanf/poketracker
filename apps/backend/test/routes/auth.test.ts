@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import { StatusCodes } from 'http-status-codes';
 
-import { createTestApp } from '../helpers/createTestApp.js';
+import { createTestAppHelper } from '../helpers/createTestApp.helper.js';
 import authRouter from '../../src/routes/auth.route.js';
 import * as authController from '../../src/controllers/auth.controller.js';
 
@@ -23,7 +23,7 @@ vi.mock('../../src/controllers/auth.controller.js', () => ({
 }));
 
 describe('Auth Routes', () => {
-    const app = createTestApp('/api/v1/auth', authRouter);
+    const app = createTestAppHelper('/api/v1/auth', authRouter);
 
     beforeEach(() => {
         vi.clearAllMocks();

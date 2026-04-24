@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import { StatusCodes } from 'http-status-codes';
 
-import { createTestApp } from '../helpers/createTestApp.js';
+import { createTestAppHelper } from '../helpers/createTestApp.helper.js';
 import accountRouter from '../../src/routes/account.route.js';
 import * as accountController from '../../src/controllers/account.controller.js';
 
@@ -21,7 +21,7 @@ vi.mock('../../src/controllers/account.controller.js', () => ({
 
 describe('Account Routes', () => {
     // Note: Changed mount path to match your comment
-    const app = createTestApp('/api/v1/account', accountRouter);
+    const app = createTestAppHelper('/api/v1/account', accountRouter);
 
     beforeEach(() => {
         vi.clearAllMocks();
