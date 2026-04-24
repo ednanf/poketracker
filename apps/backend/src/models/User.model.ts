@@ -1,9 +1,11 @@
 import mongoose, { Types, HydratedDocument, Schema, model } from 'mongoose';
-import bcrypt from 'bcryptjs';
+import hashPassword from '../utils/hashPassword.util.js';
+import comparePasswords from '../utils/comparePasswords.util.js';
 
 export interface IUser {
     _id: Types.ObjectId;
     email: string;
+    username: string;
     passwordHash: string;
     verified: boolean;
     createdAt?: Date;
@@ -28,6 +30,14 @@ const UserSchema = new Schema<IUserDocument>(
                 'Please provide a valid email address',
             ],
         },
+        username: {
+            type: String,
+            required: true,
+            unique: true,
+            trim: true,
+            minlength: [3, 'Username must be at least 3 characters long.'],
+            maxlength: [30, 'Username cannot exceed 30 characters.'],
+        },
         passwordHash: {
             type: String,
             required: true,
@@ -47,8 +57,7 @@ const UserSchema = new Schema<IUserDocument>(
 // Hash password only if it was modified (Modern Async Pattern)
 UserSchema.pre('save', async function hashPasswordBeforeSave() {
     if (this.isModified('passwordHash')) {
-        const salt = await bcrypt.genSalt(12);
-        this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
+        this.passwordHash = await hashPassword(this.passwordHash);
     }
 });
 
@@ -59,7 +68,7 @@ UserSchema.methods.comparePassword = async function compareUserPassword(
     // unless we explicitly '.select("+passwordHash")' in the controller query.
     if (!this.passwordHash)
         throw new Error('Password hash not selected in query');
-    return bcrypt.compare(candidatePassword, this.passwordHash);
+    return comparePasswords(candidatePassword, this.passwordHash);
 };
 
 const User = mongoose.models.User || model<IUserDocument>('User', UserSchema);
