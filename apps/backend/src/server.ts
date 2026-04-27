@@ -3,15 +3,10 @@ import app from './app.js';
 import dbConnectUtil from './utils/dbConnect.util.js';
 import http from 'http';
 
-/**
- * Create the HTTP server instance.
- * Note: No need for dotenv here since you use the --env-file flag.
- */
+// Create server instance
 const server = http.createServer(app);
 
-/**
- * Main entry point to bootstrap the backend.
- */
+// Main entry point
 const serverStart = async (): Promise<void> => {
     try {
         // Determine which URI to use; defaulting to local for dev
