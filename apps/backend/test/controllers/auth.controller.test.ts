@@ -208,4 +208,8 @@ describe('Auth controllers', () => {
             );
         });
     });
+
+    // describe('`refreshToken` controller', () => {
+    //     /* empty */
+    // });
 });
