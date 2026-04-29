@@ -1,4 +1,4 @@
-import mongoose, { Types, HydratedDocument, Schema, model } from 'mongoose';
+import mongoose, { HydratedDocument, model, Schema, Types } from 'mongoose';
 import hashPassword from '../utils/hashPassword.util.js';
 import comparePasswords from '../utils/comparePasswords.util.js';
 
@@ -26,7 +26,7 @@ const UserSchema = new Schema<IUserDocument>(
             trim: true,
             minlength: [5, 'Email must be at least 5 characters long.'],
             match: [
-                /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+                /^\w+([.-]\w+)*@\w+([.-]\w+)*(\.\w{2,3})+$/,
                 'Please provide a valid email address',
             ],
         },
