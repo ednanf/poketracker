@@ -25,7 +25,7 @@ export const attachCookiesToResponse = (
     const sevenDays = 1000 * 60 * 60 * 24 * 7;
 
     res.cookie('refreshToken', refreshToken, {
-        httpOnly: true, // Crucial: Prevents JavaScript/XSS from reading the cookie
+        httpOnly: true, // Prevents JavaScript/XSS from reading the cookie
         secure: process.env.NODE_ENV === 'production', // Must be true in production (HTTPS)
         expires: new Date(Date.now() + sevenDays),
         sameSite: 'lax', // Required for cross-site cookie sending in modern browsers
