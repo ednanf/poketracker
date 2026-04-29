@@ -24,40 +24,39 @@ const registerUser = async (
     try {
         const { email, username, password } = req.body;
 
-        // Create the User
+        // Create the User.
         // If email exists, Mongoose throws an 11000 error, which our ErrorHandler catches automatically.
-
         const user = await User.create({
             email,
             username,
             passwordHash: password,
         });
 
-        // Generate Dual Tokens
-
+        // Generate accessToken.
         const accessToken = generateAccessToken(user._id);
+
+        // Generate refreshToken.
         const refreshTokenString = generateRefreshToken(user._id);
 
-        // Save Refresh Token to MongoDB (Allows revoking if needed)
-
+        // Set refreshToken duration (value used for db field).
         const sevenDays = 1000 * 60 * 60 * 24 * 7;
+
+        // Save Refresh Token to MongoDB (Allows revoking if needed).
         await RefreshToken.create({
             token: refreshTokenString,
             userId: user._id,
             expiresAt: new Date(Date.now() + sevenDays),
         });
 
-        // Attach the Refresh Token to the httpOnly Cookie
-
+        // Attach the Refresh Token to the httpOnly Cookie.
         attachCookiesToResponse(res, refreshTokenString);
 
-        // Send the Access Token and User Data to the frontend
-
+        // Send the Access Token and User Data to the frontend.
         res.status(StatusCodes.CREATED).json({
             status: 'success',
             data: {
                 message: 'User successfully registered.',
-                accessToken, // Frontend will catch this and put it in Zustand memory
+                accessToken, // Frontend should catch this and put it in Zustand memory.
                 user: {
                     id: user._id.toString(),
                     username: user.username,
@@ -79,8 +78,7 @@ const loginUser = async (
         const { email, password } = req.body;
 
         // Verify User Exists
-        // Append `.select('+passwordHash')` to this query so it can be read
-        const user = await User.findOne({ email }).select('+passwordHash');
+        const user = await User.findOne({ email }).select('+passwordHash'); // Append `.select('+passwordHash')` to this query so it can be read
         if (!user) {
             next(new UnauthenticatedError('Invalid email or password.'));
             return;
@@ -91,7 +89,6 @@ const loginUser = async (
             password,
             user.passwordHash,
         );
-
         if (!isPasswordCorrect) {
             next(new UnauthenticatedError('Invalid email or password.'));
             return;
@@ -101,18 +98,19 @@ const loginUser = async (
         const accessToken = generateAccessToken(user._id);
         const refreshTokenString = generateRefreshToken(user._id);
 
+        // Set refreshToken duration (value used for db field).
+        const sevenDays = 1000 * 60 * 60 * 24 * 7;
+
         // Save Refresh Token to MongoDB
         // By creating a new token document here instead of updating an old one,
         // we allow the user to be logged in on multiple devices simultaneously
-        // (e.g., phone and laptop).
-        const sevenDays = 1000 * 60 * 60 * 24 * 7;
         await RefreshToken.create({
             token: refreshTokenString,
             userId: user._id,
             expiresAt: new Date(Date.now() + sevenDays),
         });
 
-        // Attach the Refresh Token to the httpOnly Cookie
+        // Send the refresh token via the `Set-Cookie` header.
         attachCookiesToResponse(res, refreshTokenString);
 
         // Send the Access Token and User Data
@@ -139,9 +137,9 @@ const refreshToken = async (
     next: NextFunction,
 ) => {
     try {
-        // Extract the token from the httpOnly cookie
+        // The frontend can't `see` this token, but the browser sends it
+        // automatically in the request headers.
         const { refreshToken } = req.cookies;
-
         if (!refreshToken) {
             return next(new UnauthenticatedError('Authentication invalid.'));
         }
@@ -150,22 +148,21 @@ const refreshToken = async (
         const payload = jwt.verify(
             refreshToken,
             process.env.JWT_REFRESH_SECRET as string,
-        ) as { userId: string };
+        ) as { userId: string }; // extract the userId (_id) from the token
 
         // Check MongoDB to ensure the token wasn't revoked or logged out
         const existingToken = await RefreshToken.findOne({
             token: refreshToken,
             userId: payload.userId,
         });
-
         if (!existingToken) {
             return next(new UnauthenticatedError('Authentication invalid.'));
         }
 
-        // Generate a brand new Access Token
+        // Mint a new `Access Token`
         const accessToken = generateAccessToken(payload.userId);
 
-        // Send the new Access Token to the frontend
+        // Send the new `Access Token` to the frontend
         res.status(StatusCodes.OK).json({
             status: 'success',
             data: {
@@ -174,8 +171,6 @@ const refreshToken = async (
             },
         });
     } catch (error) {
-        // If jwt.verify fails (e.g., tampered token or expired), it throws an error.
-        // ErrorHandler automatically maps JsonWebTokenError to a 401.
         next(error);
     }
 };
