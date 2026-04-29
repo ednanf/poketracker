@@ -54,7 +54,7 @@ const UserSchema = new Schema<IUserDocument>(
     { timestamps: true },
 );
 
-// Hash password only if it was modified (Modern Async Pattern)
+// Hash password only if it was modified
 UserSchema.pre('save', async function hashPasswordBeforeSave() {
     if (this.isModified('passwordHash')) {
         this.passwordHash = await hashPassword(this.passwordHash);

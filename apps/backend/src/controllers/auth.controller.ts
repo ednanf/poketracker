@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import { StatusCodes } from 'http-status-codes';
 import User from '../models/User.model.js';
 import RefreshToken from '../models/RefreshToken.model.js';
@@ -23,19 +24,22 @@ const registerUser = async (
     try {
         const { email, username, password } = req.body;
 
-        // 1. Create the User
+        // Create the User
         // If email exists, Mongoose throws an 11000 error, which our ErrorHandler catches automatically.
+
         const user = await User.create({
             email,
             username,
             passwordHash: password,
         });
 
-        // 2. Generate Dual Tokens
+        // Generate Dual Tokens
+
         const accessToken = generateAccessToken(user._id);
         const refreshTokenString = generateRefreshToken(user._id);
 
-        // 3. Save Refresh Token to MongoDB (Allows revoking if needed)
+        // Save Refresh Token to MongoDB (Allows revoking if needed)
+
         const sevenDays = 1000 * 60 * 60 * 24 * 7;
         await RefreshToken.create({
             token: refreshTokenString,
@@ -43,10 +47,12 @@ const registerUser = async (
             expiresAt: new Date(Date.now() + sevenDays),
         });
 
-        // 4. Attach the Refresh Token to the httpOnly Cookie
+        // Attach the Refresh Token to the httpOnly Cookie
+
         attachCookiesToResponse(res, refreshTokenString);
 
-        // 5. Send the Access Token and User Data to the frontend
+        // Send the Access Token and User Data to the frontend
+
         res.status(StatusCodes.CREATED).json({
             status: 'success',
             data: {
@@ -72,15 +78,15 @@ const loginUser = async (
     try {
         const { email, password } = req.body;
 
-        // 1. Verify User Exists
-        //  Append `.select('+passwordHash')` to this query so it can be read
+        // Verify User Exists
+        // Append `.select('+passwordHash')` to this query so it can be read
         const user = await User.findOne({ email }).select('+passwordHash');
         if (!user) {
             next(new UnauthenticatedError('Invalid email or password.'));
             return;
         }
 
-        // 2. Verify Password matches the hash in MongoDB
+        // Verify Password matches the hash in MongoDB
         const isPasswordCorrect = await user.comparePassword(
             password,
             user.passwordHash,
@@ -91,11 +97,11 @@ const loginUser = async (
             return;
         }
 
-        // 3. Generate Dual Tokens
+        // Generate Dual Tokens
         const accessToken = generateAccessToken(user._id);
         const refreshTokenString = generateRefreshToken(user._id);
 
-        // 4. Save Refresh Token to MongoDB
+        // Save Refresh Token to MongoDB
         // By creating a new token document here instead of updating an old one,
         // we allow the user to be logged in on multiple devices simultaneously
         // (e.g., phone and laptop).
@@ -106,10 +112,10 @@ const loginUser = async (
             expiresAt: new Date(Date.now() + sevenDays),
         });
 
-        // 5. Attach the Refresh Token to the httpOnly Cookie
+        // Attach the Refresh Token to the httpOnly Cookie
         attachCookiesToResponse(res, refreshTokenString);
 
-        // 6. Send the Access Token and User Data
+        // Send the Access Token and User Data
         res.status(StatusCodes.OK).json({
             status: 'success',
             data: {
@@ -127,14 +133,78 @@ const loginUser = async (
     }
 };
 
-const refreshToken = (req: Request, res: Response, _next: NextFunction) => {
-    console.log('HIT: POST /api/v1/refresh-token');
-    res.status(200).json({ message: 'Stub: refreshToken' });
+const refreshToken = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+    try {
+        // Extract the token from the httpOnly cookie
+        const { refreshToken } = req.cookies;
+
+        if (!refreshToken) {
+            return next(new UnauthenticatedError('Authentication invalid.'));
+        }
+
+        // Verify the token using the secret
+        const payload = jwt.verify(
+            refreshToken,
+            process.env.JWT_REFRESH_SECRET as string,
+        ) as { userId: string };
+
+        // Check MongoDB to ensure the token wasn't revoked or logged out
+        const existingToken = await RefreshToken.findOne({
+            token: refreshToken,
+            userId: payload.userId,
+        });
+
+        if (!existingToken) {
+            return next(new UnauthenticatedError('Authentication invalid.'));
+        }
+
+        // Generate a brand new Access Token
+        const accessToken = generateAccessToken(payload.userId);
+
+        // Send the new Access Token to the frontend
+        res.status(StatusCodes.OK).json({
+            status: 'success',
+            data: {
+                message: 'Token successfully refreshed.',
+                accessToken,
+            },
+        });
+    } catch (error) {
+        // If jwt.verify fails (e.g., tampered token or expired), it throws an error.
+        // ErrorHandler automatically maps JsonWebTokenError to a 401.
+        next(error);
+    }
 };
 
-const logoutUser = (req: Request, res: Response, _next: NextFunction) => {
-    console.log('HIT: POST /api/v1/logout');
-    res.status(200).json({ message: 'Stub: logoutUser' });
+const logoutUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { refreshToken } = req.cookies;
+
+        if (refreshToken) {
+            // Delete the token from MongoDB to completely invalidate it
+            await RefreshToken.deleteOne({ token: refreshToken });
+        }
+
+        // Clear the cookie from the user's browser
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+        });
+
+        res.status(StatusCodes.OK).json({
+            status: 'success',
+            data: {
+                message: 'User successfully logged out.',
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
 };
 
 export { registerUser, loginUser, logoutUser, refreshToken };

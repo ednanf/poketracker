@@ -212,4 +212,8 @@ describe('Auth controllers', () => {
     // describe('`refreshToken` controller', () => {
     //     /* empty */
     // });
+
+    // describe('`logout` controller', () => {
+    //     /* empty */
+    // })
 });
