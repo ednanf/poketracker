@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 /**
- * Zod schema matching the .env structure.
+ * Zod schema matching the .envConfig structure.
  */
 const envSchema = z.object({
     NODE_VERSION: z.string().optional(),
@@ -33,7 +33,7 @@ const envSchema = z.object({
 });
 
 /**
- * Validate the process.env.
+ * Validate the process.envConfig.
  */
 const result = envSchema.safeParse(process.env);
 
@@ -49,11 +49,11 @@ if (!result.success) {
     console.table(errorReport);
 
     throw new Error(
-        '[system] Check your .env file for missing or invalid keys.',
+        '[system] Check your .envConfig file for missing or invalid keys.',
     );
 }
 
 /**
  * Exported validated configuration.
  */
-export const env = result.data;
+export const envConfig = result.data;
