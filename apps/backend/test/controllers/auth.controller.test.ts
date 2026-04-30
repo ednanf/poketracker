@@ -14,6 +14,7 @@ import RefreshToken from '../../src/models/RefreshToken.model.js';
 import * as jwtUtils from '../../src/utils/jwt.util.js';
 import {
     loginUser,
+    logoutUser,
     refreshToken,
     registerUser,
 } from '../../src/controllers/auth.controller.js';
@@ -51,7 +52,7 @@ describe('Auth controllers', () => {
     // SHARED / UNIVERSAL SETUP
     // ========================================================================
 
-    // Use Partial to avoid mocking all of the properties of an Express Request
+    // Use Partial to avoid mocking all the properties of an Express Request
     let mockReq: Partial<Request<unknown, unknown, RegisterInput>>;
     let mockRes: Partial<Response<ApiResponse<AuthSuccessPayload>>>;
     let mockNext: NextFunction;
@@ -359,10 +360,105 @@ describe('Auth controllers', () => {
         });
     });
 
+    // TODO: LOGOUT TESTS
+
     // ========================================================================
-    // CONTROLLER: LOGOUT (Coming soon)
+    // CONTROLLER: LOGOUT
     // ========================================================================
-    // describe('`logout` controller', () => {
-    //      /* empty */
-    // })
+    describe('`logoutUser` controller', () => {
+        // Specific request just for Logout
+        let logoutReq: Partial<Request>;
+        const MOCK_REFRESH_TOKEN = 'valid_refresh_cookie_string';
+
+        beforeEach(() => {
+            // Stub the environment variable to test the 'secure' cookie flag
+            vi.stubEnv('NODE_ENV', 'development');
+
+            logoutReq = {
+                cookies: {
+                    refreshToken: MOCK_REFRESH_TOKEN,
+                },
+            };
+
+            // Add clearCookie to our existing shared mockRes
+            mockRes.clearCookie = vi.fn().mockReturnThis();
+        });
+
+        it('successfully logs out and deletes token when cookie is present', async () => {
+            // Bypass for the DB call
+            const deleteOneSpy = (
+                vi.spyOn(RefreshToken, 'deleteOne') as unknown as MockInstance
+            ).mockResolvedValue({ deletedCount: 1 });
+
+            await logoutUser(
+                logoutReq as Request,
+                mockRes as Response<ApiResponse<AuthSuccessPayload>>, // Reusing the type
+                mockNext,
+            );
+
+            // Verify DB was told to delete the token
+            expect(deleteOneSpy).toHaveBeenCalledWith({
+                token: MOCK_REFRESH_TOKEN,
+            });
+
+            // Verify the cookie was cleared with the correct security settings
+            expect(mockRes.clearCookie).toHaveBeenCalledWith(
+                'refreshToken',
+                expect.objectContaining({
+                    httpOnly: true,
+                    sameSite: 'lax',
+                    secure: false, // false because we stubbed NODE_ENV as development
+                }),
+            );
+
+            // Verify the response
+            expect(mockRes.status).toHaveBeenCalledWith(StatusCodes.OK);
+            expect(mockRes.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    status: 'success',
+                    data: expect.objectContaining({
+                        message: 'User successfully logged out.',
+                    }),
+                }),
+            );
+        });
+
+        it('successfully logs out without hitting DB if no cookie is present', async () => {
+            logoutReq.cookies = {}; // Simulate user who already lost their cookie
+
+            const deleteOneSpy = vi.spyOn(
+                RefreshToken,
+                'deleteOne',
+            ) as unknown as MockInstance;
+
+            await logoutUser(
+                logoutReq as Request,
+                mockRes as Response<ApiResponse<AuthSuccessPayload>>,
+                mockNext,
+            );
+
+            // It shouldn't waste a DB call if there's no token to delete
+            expect(deleteOneSpy).not.toHaveBeenCalled();
+
+            // But it should still clear the browser cookie just to be safe
+            expect(mockRes.clearCookie).toHaveBeenCalled();
+            expect(mockRes.status).toHaveBeenCalledWith(StatusCodes.OK);
+        });
+
+        it('forwards database errors to the global error handler', async () => {
+            const dbError = new Error('Database connection lost during logout');
+
+            (
+                vi.spyOn(RefreshToken, 'deleteOne') as unknown as MockInstance
+            ).mockRejectedValue(dbError);
+
+            await logoutUser(
+                logoutReq as Request,
+                mockRes as Response<ApiResponse<AuthSuccessPayload>>,
+                mockNext,
+            );
+
+            expect(mockNext).toHaveBeenCalledWith(dbError);
+        });
+    });
 });
