@@ -3,7 +3,7 @@ import helmet from 'helmet';
 import { xss } from 'express-xss-sanitizer';
 import rateLimit from 'express-rate-limit';
 
-export const createTestAppHelper = (path: string, router: Router) => {
+export const createTestApp = (path: string, router: Router) => {
     const app = express();
 
     // 1. Global Parsers

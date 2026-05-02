@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import request from 'supertest';
 import { StatusCodes } from 'http-status-codes';
 
-import { createTestAppHelper } from '../helpers/createTestApp.helper.js';
+import { createTestApp } from '../helpers/createTestApp.js';
 import saveFilesRouter from '../../src/routes/saveFiles.route.js';
 import * as saveFilesController from '../../src/controllers/saveFiles.controller.js';
 
@@ -32,7 +32,7 @@ vi.mock('../../src/controllers/saveFiles.controller.js', () => ({
 }));
 
 describe('Save Files Routes', () => {
-    const app = createTestAppHelper('/api/v1/save-file', saveFilesRouter);
+    const app = createTestApp('/api/v1/save-file', saveFilesRouter);
 
     beforeEach(() => {
         vi.clearAllMocks();
