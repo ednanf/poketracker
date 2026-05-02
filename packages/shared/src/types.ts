@@ -32,3 +32,16 @@ export interface AuthSuccessPayload {
         email: string;
     };
 }
+
+/*
+ * Account types
+ * */
+
+export interface UserProfilePayload {
+    message: string;
+    user: {
+        id: string;
+        username: string;
+        email: string;
+    };
+}

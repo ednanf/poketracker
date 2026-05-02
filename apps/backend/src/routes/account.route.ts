@@ -1,14 +1,16 @@
 import express from 'express';
 import { validate } from '../middleware/validate.middleware.js';
 import { UpdateAccountSchema } from '@poketracker/shared';
-
 import {
-    whoAmI,
-    patchUser,
     deleteUser,
+    patchUser,
+    whoAmI,
 } from '../controllers/account.controller.js';
+import { requireAuth } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
+
+router.use(requireAuth);
 
 // `/api/v1/account`
 router.get('/', whoAmI);
