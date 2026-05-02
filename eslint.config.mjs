@@ -6,11 +6,7 @@ export default tseslint.config(
     // 1. GLOBAL IGNORES: This must be its own object at the top.
     // This tells ESLint to never cross into compiled folders across the entire monorepo.
     {
-        ignores: [
-            "**/node_modules/**",
-            "**/dist/**",
-            "**/build/**"
-        ]
+        ignores: ['**/node_modules/**', '**/dist/**', '**/build/**'],
     },
 
     // 2. BASE CONFIGURATIONS
@@ -21,11 +17,11 @@ export default tseslint.config(
     // 3. PROJECT-SPECIFIC RULES
     {
         // This ensures the linter traverses into your workspaces
-        files: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.mjs"],
+        files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.mjs'],
         rules: {
             '@typescript-eslint/no-unused-vars': [
                 'warn',
-                {argsIgnorePattern: '^_'},
+                { argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
             ],
         },
         languageOptions: {
@@ -34,5 +30,5 @@ export default tseslint.config(
                 projectService: false,
             },
         },
-    }
+    },
 );

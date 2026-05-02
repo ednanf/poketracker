@@ -41,7 +41,7 @@ export const requireAuth = (
         req.userId = payload.userId;
 
         next();
-    } catch (error) {
+    } catch (_error) {
         // If jwt.verify fails (expired, tampered, wrong secret), it throws an error.
         next(
             new UnauthenticatedError(
