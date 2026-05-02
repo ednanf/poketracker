@@ -7,8 +7,8 @@ import {
     ApiResponse,
     AuthSuccessPayload,
     LoginInput,
+    RegisterInput,
 } from '@poketracker/shared';
-import { RegisterInput } from '@poketracker/shared';
 import {
     attachCookiesToResponse,
     generateAccessToken,
@@ -141,7 +141,8 @@ const refreshToken = async (
         // automatically in the request headers.
         const { refreshToken } = req.cookies;
         if (!refreshToken) {
-            return next(new UnauthenticatedError('Authentication invalid.'));
+            next(new UnauthenticatedError('Authentication invalid.'));
+            return;
         }
 
         // Verify the token using the secret
@@ -156,7 +157,8 @@ const refreshToken = async (
             userId: payload.userId,
         });
         if (!existingToken) {
-            return next(new UnauthenticatedError('Authentication invalid.'));
+            next(new UnauthenticatedError('Authentication invalid.'));
+            return;
         }
 
         // Mint a new `Access Token`
