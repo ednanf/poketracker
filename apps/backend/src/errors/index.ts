@@ -11,3 +11,4 @@ export { default as ConflictError } from './ConflictError.js';
 export { default as InternalServerError } from './InternalServerError.js';
 export { default as UnauthorizedError } from './UnauthorizedError.js';
 export { default as EnvVarsMissingError } from './EnvVarsMissingError.js';
+export { default as ForbiddenError } from './ForbiddenError.js';
