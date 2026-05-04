@@ -61,14 +61,40 @@ export interface SaveFilePayload {
     updatedAt?: string;
 }
 
+// The lightweight shape for the Dashboard menu
+export interface SaveFileMetadataPayload {
+    id: string;
+    name: string;
+    type: 'NATIONAL' | 'REGIONAL';
+    gameVersion: string;
+    caughtCount: number;
+    // caughtIds is omitted here for performance
+    createdAt?: string;
+    updatedAt?: string;
+}
+
 // Specific payload for a successful creation response
 export interface CreateSaveFileSuccessPayload {
     message: string;
     saveFile: SaveFilePayload;
 }
 
-// Payload for fetching multiple save files
+// Getting all save files use the SaveFileMetadataPayload instead
 export interface GetAllSaveFilesSuccessPayload {
     message: string;
-    saveFiles: SaveFilePayload[];
+    saveFiles: SaveFileMetadataPayload[];
+}
+// Has to use the heavier SaveFilePayload since all data is required
+export interface GetSaveFileSuccessPayload {
+    message: string;
+    saveFile: SaveFilePayload;
+}
+
+export interface UpdateSaveFileSuccessPayload {
+    message: string;
+    saveFile: SaveFilePayload;
+}
+
+export interface DeleteSaveFileSuccessPayload {
+    message: string;
 }

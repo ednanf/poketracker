@@ -1,5 +1,6 @@
 import mongoose, { Types, HydratedDocument, Schema, model } from 'mongoose';
 
+// Represents how the data is stored in MongoDB.
 export interface ISaveFile {
     _id: Types.ObjectId;
     userId: Types.ObjectId;
