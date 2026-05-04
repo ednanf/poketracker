@@ -45,3 +45,30 @@ export interface UserProfilePayload {
         email: string;
     };
 }
+
+/*
+ * Save file types
+ * */
+
+// Base shape of a Save File returned by the API
+export interface SaveFilePayload {
+    id: string;
+    name: string;
+    type: 'NATIONAL' | 'REGIONAL';
+    gameVersion: string;
+    caughtIds: string[];
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+// Specific payload for a successful creation response
+export interface CreateSaveFileSuccessPayload {
+    message: string;
+    saveFile: SaveFilePayload;
+}
+
+// Payload for fetching multiple save files
+export interface GetAllSaveFilesSuccessPayload {
+    message: string;
+    saveFiles: SaveFilePayload[];
+}

@@ -15,8 +15,11 @@ import {
     deleteSaveFile,
     syncSaveFile,
 } from '../controllers/saveFiles.controller.js';
+import { requireAuth } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
+
+router.use(requireAuth);
 
 // `/api/v1/save-file`
 router.get('/', getAllSaveFiles);
