@@ -1,6 +1,7 @@
 /*
  * Generic API response
  * */
+
 export interface ApiResponse<T = never> {
     status: 'success' | 'error';
     data: T;
@@ -9,12 +10,13 @@ export interface ApiResponse<T = never> {
 /*
  * Error types
  * */
+
 export interface ApiError {
     message: string;
-    errorId?: string; // Optional, used for 500 fallback logging
+    errorId?: string; // Optional, used for `500` fallback logging.
 }
 
-// Database Specific Error Payload
+// Database Specific Error Payload.
 export interface MongoDatabaseError {
     code: number;
     message: string;
@@ -23,6 +25,7 @@ export interface MongoDatabaseError {
 /*
  * Auth types
  * */
+
 export interface AuthSuccessPayload {
     message: string;
     accessToken: string;
@@ -50,7 +53,7 @@ export interface UserProfilePayload {
  * Save file types
  * */
 
-// Base shape of a Save File returned by the API
+// Base shape of a Save File returned by the API.
 export interface SaveFilePayload {
     id: string;
     name: string;
@@ -61,30 +64,30 @@ export interface SaveFilePayload {
     updatedAt?: string;
 }
 
-// The lightweight shape for the Dashboard menu
+// The lightweight shape for the Dashboard menu.
 export interface SaveFileMetadataPayload {
     id: string;
     name: string;
     type: 'NATIONAL' | 'REGIONAL';
     gameVersion: string;
     caughtCount: number;
-    // caughtIds is omitted here for performance
+    // `caughtIds` is omitted here for performance.
     createdAt?: string;
     updatedAt?: string;
 }
 
-// Specific payload for a successful creation response
+// Specific payload for a successful creation response.
 export interface CreateSaveFileSuccessPayload {
     message: string;
     saveFile: SaveFilePayload;
 }
 
-// Getting all save files use the SaveFileMetadataPayload instead
+// Getting all save files use the SaveFileMetadataPayload instead.
 export interface GetAllSaveFilesSuccessPayload {
     message: string;
     saveFiles: SaveFileMetadataPayload[];
 }
-// Has to use the heavier SaveFilePayload since all data is required
+// Has to use the heavier SaveFilePayload since all data is required.
 export interface GetSaveFileSuccessPayload {
     message: string;
     saveFile: SaveFilePayload;
@@ -97,4 +100,16 @@ export interface UpdateSaveFileSuccessPayload {
 
 export interface DeleteSaveFileSuccessPayload {
     message: string;
+}
+
+// types/interfaces related to syncing.
+export type SyncActionType = 'ADD' | 'REMOVE';
+
+export interface SyncAction {
+    action: SyncActionType;
+    pokemonId: string; // e.g., "001-base"
+}
+
+export interface SyncSaveFileInput {
+    actions: SyncAction[];
 }

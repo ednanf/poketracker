@@ -15,7 +15,7 @@ export interface ISaveFile {
 
 export interface ISaveFileDocument
     extends ISaveFile, HydratedDocument<ISaveFile> {
-    // Utility method for future features (e.g., "Reset Save File" functionality)
+    // Utility method for future features (e.g., "Reset Save File" functionality).
     clearDex(): void;
 }
 
@@ -60,10 +60,13 @@ const SaveFileSchema = new Schema<ISaveFileDocument>(
     { timestamps: true },
 );
 
-// Compound Index: Optimizes queries like "Find my Violet save file"
+// Optimize queries like "Find my Violet save file."
 SaveFileSchema.index({ userId: 1, gameVersion: 1 });
 
-// Instance method to wipe the sparse array without deleting the metadata
+// Verify ownership and find the document.
+SaveFileSchema.index({ _id: 1, userId: 1 });
+
+// Instance method to wipe the sparse array without deleting the metadata.
 SaveFileSchema.methods.clearDex = function wipeSaveFile(): void {
     this.caughtIds = [];
     this.documentVersion += 1;

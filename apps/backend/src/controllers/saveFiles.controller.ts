@@ -1,5 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import mongoose, { HydratedDocument, Types } from 'mongoose';
+import mongoose, {
+    AnyBulkWriteOperation,
+    HydratedDocument,
+    Types,
+} from 'mongoose';
 import { StatusCodes } from 'http-status-codes';
 import SaveFile, { ISaveFile } from '../models/SaveFile.model.js';
 import UnauthenticatedError from '../errors/UnauthenticatedError.js';
@@ -12,6 +16,7 @@ import {
     GetSaveFileSuccessPayload,
     SaveFileMetadataPayload,
     SaveFilePayload,
+    SyncSaveFileInput,
     UpdateSaveFileInput,
     UpdateSaveFileSuccessPayload,
 } from '@poketracker/shared';
@@ -304,9 +309,85 @@ const deleteSaveFile = async (
     }
 };
 
-const syncSaveFile = (req: Request, res: Response, _next: NextFunction) => {
-    console.log('HIT: POST /api/v1/save-files/sync');
-    res.status(200).json({ message: 'Stub: syncSaveFile' });
+const syncSaveFile = async (
+    req: Request<{ id: string }, unknown, SyncSaveFileInput>,
+    res: Response<ApiResponse<{ message: string; caughtIds: string[] }>>,
+    next: NextFunction,
+) => {
+    try {
+        const userId = req.userId;
+
+        if (!userId) {
+            next(new UnauthenticatedError('User context missing.'));
+            return;
+        }
+
+        const { id } = req.params;
+        const { actions } = req.body;
+
+        if (!actions || actions.length === 0) {
+            res.status(StatusCodes.OK).json({
+                status: 'success',
+                data: { message: 'No actions to sync.', caughtIds: [] }, // Handled via refetch
+            });
+            return;
+        }
+
+        // Verify Ownership before executing the batch.
+        // Project only the userId to keep the memory footprint minimal.
+        const saveFile = await SaveFile.findById(id).select('userId');
+
+        if (!saveFile) {
+            next(new NotFoundError('Save file not found.'));
+            return;
+        }
+
+        if (saveFile.userId.toString() !== userId) {
+            next(new ForbiddenError('Access denied.'));
+            return;
+        }
+
+        // Map the incoming actions to MongoDB Bulk Operations.
+        const bulkOperations: AnyBulkWriteOperation<ISaveFile>[] = actions.map(
+            (action) => {
+                if (action.action === 'ADD') {
+                    return {
+                        updateOne: {
+                            filter: { _id: saveFile._id },
+                            update: {
+                                $addToSet: { caughtIds: action.pokemonId },
+                            },
+                        },
+                    };
+                } else {
+                    // REMOVE
+                    return {
+                        updateOne: {
+                            filter: { _id: saveFile._id },
+                            update: { $pull: { caughtIds: action.pokemonId } },
+                        },
+                    };
+                }
+            },
+        );
+
+        // Execute the atomic batch write.
+        await SaveFile.bulkWrite(bulkOperations);
+
+        // Return the updated state.
+        // Fetch the updated document to return the absolute source of truth back to the client.
+        const updatedFile = await SaveFile.findById(id).select('caughtIds');
+
+        res.status(StatusCodes.OK).json({
+            status: 'success',
+            data: {
+                message: 'Sync completed successfully.',
+                caughtIds: updatedFile?.caughtIds || [],
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
 };
 
 export {
