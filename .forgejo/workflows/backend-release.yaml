@@ -20,7 +20,9 @@ jobs:
           node-version: '24'
 
       - name: Install Dependencies
-        run: cd backend && npm ci
+        # Run from the root to link all workspaces
+        run: yarn install --frozen-lockfile
 
       - name: Test Backend
-        run: cd backend && npm test
+        # Target the specific workspace without needing to 'cd'
+        run: yarn workspace backend test
