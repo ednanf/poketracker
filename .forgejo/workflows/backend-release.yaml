@@ -1,8 +1,11 @@
 name: Backend Release Check
+
 on:
   push:
-    tags:
-      - 'backend/*'
+    branches:
+      - master
+    paths:
+      - 'apps/backend/**'
 
 jobs:
   validate-backend:
