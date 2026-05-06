@@ -1,0 +1,26 @@
+name: Backend Release Check
+on:
+  push:
+    tags:
+      - 'backend/*'
+
+jobs:
+  validate-backend:
+    # Matches the label set in docker-compose.yml
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Explicitly install Node so you there's no guessing what the container has
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install Dependencies
+        run: cd backend && npm ci
+
+      - name: Test Backend
+        run: cd backend && npm test
