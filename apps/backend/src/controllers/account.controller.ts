@@ -16,7 +16,7 @@ const whoAmI = async (
     next: NextFunction,
 ) => {
     try {
-        // req.userId is guaranteed to be here by requireAuth.
+        // `req.userId` is guaranteed to be here by requireAuth.
         const user = await User.findById(req.userId);
 
         // Edge Case: The token is valid, but the user was deleted from the database.
@@ -55,14 +55,14 @@ const patchUser = async (
 
         const { email, username, password } = req.body;
 
-        // Apply updates dynamically
+        // Apply updates dynamically.
         if (email) user.email = email;
         if (username) user.username = username;
         if (password) {
             user.passwordHash = password; // Assign the raw password here.
         }
 
-        // Using .save() forces Mongoose to run the pre-save hook and schema validations.
+        // Using `.save()` forces Mongoose to run the pre-save hook and schema validations.
         await user.save();
 
         res.status(StatusCodes.OK).json({
@@ -89,14 +89,14 @@ const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
             return;
         }
 
-        // Cascade Delete: Remove all associated data
+        // Cascade Delete: Remove all associated data.
         await Promise.all([
             RefreshToken.deleteMany({ userId: user._id }),
             SaveFile.deleteMany({ userId: user._id }), // Clears their Pokedex saves
             user.deleteOne(), // Deletes the user document itself
         ]);
 
-        // Clear the browser cookie
+        // Clear the browser cookie.
         res.clearCookie('refreshToken', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
