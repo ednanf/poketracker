@@ -2,7 +2,7 @@ import http from 'http';
 
 import app from './app.js';
 import envConfig from './config/env.config.js';
-import dbConnect from './utils/dbConnect.util.js';
+import dbConnect from './config/dbConnect.config.js';
 
 const server = http.createServer(app);
 
