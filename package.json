@@ -1,0 +1,36 @@
+{
+    "name": "poketracker",
+    "private": true,
+    "version": "1.0.0",
+    "description": "Pokétracker Monorepo",
+    "main": "index.js",
+    "scripts": {
+        "dev:backend": "pnpm -F @poketracker/backend dev",
+        "format:check": "prettier --check .",
+        "format:fix": "prettier --write .",
+        "typecheck": "pnpm -r check"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "UNLICENSED",
+    "devEngines": {
+        "packageManager": {
+            "name": "pnpm",
+            "version": "^11.7.0",
+            "onFail": "download"
+        }
+    },
+    "type": "module",
+    "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "eslint": "^10.6.0",
+        "husky": "^9.1.7",
+        "lint-staged": "^17.0.8",
+        "prettier": "^3.9.1",
+        "typescript": "^6.0.3",
+        "typescript-eslint": "^8.62.0"
+    },
+    "dependencies": {
+        "zod": "^4.4.3"
+    }
+}

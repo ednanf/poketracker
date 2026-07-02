@@ -1,0 +1,16 @@
+{
+  "name": "@poketracker/shared",
+  "version": "1.0.0",
+  "private": "true",
+  "description": "shared packages",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.{ts,tsx}\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts"
+}
