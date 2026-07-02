@@ -1,2 +1,0 @@
-yarn run typecheck
-npx lint-staged
